@@ -1,0 +1,56 @@
+name: Build OpenTelemetry Collector Contrib
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'opentelemetry-collector/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'opentelemetry-collector/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+    - uses: actions/checkout@v3
+      
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+    
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Extract metadata for Docker
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ghcr.io/${{ github.repository }}/otelcontribcol
+        tags: |
+          type=sha,format=long
+          type=ref,event=branch
+          type=ref,event=tag
+          latest
+
+    - name: Build OpenTelemetry Collector Contrib
+      working-directory: opentelemetry-collector/opentelemetry-collector-contrib
+      run: |
+        COMPONENT=otelcontribcol make docker-component
+        # Tag with GHCR registry and repository
+        docker tag otelcontribcol:latest ghcr.io/${{ github.repository_owner }}/otelcontribcol:latest
+    
+    - name: Push Docker image
+      run: |
+        docker push ghcr.io/${{ github.repository_owner }}/otelcontribcol:latest
