@@ -4,12 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
-    paths:
-      - 'opentelemetry-collector/**'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'opentelemetry-collector/**'
 
 jobs:
   build:
@@ -45,7 +41,6 @@ jobs:
           latest
 
     - name: Build OpenTelemetry Collector Contrib
-      working-directory: opentelemetry-collector/opentelemetry-collector-contrib
       run: |
         COMPONENT=otelcontribcol make docker-component
         # Tag with GHCR registry and repository
