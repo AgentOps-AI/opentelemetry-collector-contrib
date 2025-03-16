@@ -54,6 +54,11 @@ jobs:
         # Build the binary for the base architecture needed for Docker build
         COMPONENT=otelcontribcol make otelcontribcol
         
+    - name: Prepare Docker build context
+      run: |
+        # Copy the binary to the Docker build context
+        cp ./bin/otelcontribcol_linux_amd64 ./cmd/otelcontribcol/otelcontribcol
+        
     - name: Build and push Docker image with Buildx
       id: push
       uses: docker/build-push-action@v4
