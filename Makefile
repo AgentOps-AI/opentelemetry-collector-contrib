@@ -316,15 +316,32 @@ docker-component: check-component
 	docker build -t $(COMPONENT) ./cmd/$(COMPONENT)/
 	rm ./cmd/$(COMPONENT)/$(COMPONENT)
 
+.PHONY: docker-component-multiarch # Build multi-architecture Docker image
+docker-component-multiarch: check-component
+	GOOS=linux GOARCH=amd64 $(MAKE) $(COMPONENT)
+	GOOS=linux GOARCH=arm64 $(MAKE) $(COMPONENT)
+	cp ./bin/$(COMPONENT)_linux_amd64 ./cmd/$(COMPONENT)/$(COMPONENT)_amd64
+	cp ./bin/$(COMPONENT)_linux_arm64 ./cmd/$(COMPONENT)/$(COMPONENT)_arm64
+	cd ./cmd/$(COMPONENT) && \
+	docker buildx build --platform linux/amd64,linux/arm64 \
+		--build-arg TARGETARCH \
+		-t $(COMPONENT):latest \
+		--push=$(PUSH) .
+	rm ./cmd/$(COMPONENT)/$(COMPONENT)_amd64 ./cmd/$(COMPONENT)/$(COMPONENT)_arm64
+
+.PHONY: docker-otelcontribcol
+docker-otelcontribcol:
+	COMPONENT=otelcontribcol $(MAKE) docker-component
+
+.PHONY: docker-otelcontribcol-multiarch
+docker-otelcontribcol-multiarch:
+	COMPONENT=otelcontribcol PUSH=false $(MAKE) docker-component-multiarch
+
 .PHONY: check-component
 check-component:
 ifndef COMPONENT
 	$(error COMPONENT variable was not defined)
 endif
-
-.PHONY: docker-otelcontribcol
-docker-otelcontribcol:
-	COMPONENT=otelcontribcol $(MAKE) docker-component
 
 .PHONY: docker-telemetrygen
 docker-telemetrygen:
