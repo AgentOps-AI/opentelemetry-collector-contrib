@@ -41,7 +41,7 @@ func TestCreateExtension(t *testing.T) {
 	cfg := createDefaultConfig().(*Config)
 	cfg.JWTSecret = "secret"
 
-	ext, err := createExtension(context.Background(), extensiontest.NewNopCreateSettings(), cfg)
+	ext, err := createExtension(context.Background(), extensiontest.NewNopSettings(), cfg)
 	assert.NoError(t, err)
 	assert.NotNil(t, ext)
 }
