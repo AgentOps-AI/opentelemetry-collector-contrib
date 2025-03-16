@@ -34,7 +34,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v4
       with:
-        images: ghcr.io/${{ github.repository }}/otelcontribcol
+        images: ghcr.io/${{ github.repository_owner | lowercase }}/otelcontribcol
         tags: |
           type=sha,format=long
           type=ref,event=branch
@@ -57,5 +57,12 @@ jobs:
         platforms: linux/amd64,linux/arm64
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/otelcontribcol:buildcache
-        cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/otelcontribcol:buildcache,mode=max
+        cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner | lowercase }}/otelcontribcol:buildcache
+        cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner | lowercase }}/otelcontribcol:buildcache,mode=max
+
+    - name: Generate artifact attestation
+      uses: actions/attest-build-provenance@v2
+      with:
+        subject-name: ghcr.io/${{ github.repository_owner | lowercase }}/otelcontribcol
+        subject-digest: ${{ steps.push.outputs.digest }}
+        push-to-registry: true
