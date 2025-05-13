@@ -6,7 +6,6 @@ on:
       architectures:
         description: 'Architectures to build (comma-separated)'
         required: true
-        # default: 'amd64,arm64'
         default: 'amd64'
   push:
     branches: [ main ]
@@ -37,12 +36,9 @@ jobs:
     - name: Set architectures
       id: set-archs
       run: |
-        # Default to amd64,arm64 if not specified through workflow_dispatch
         ARCHS="${{ github.event.inputs.architectures || 'amd64,arm64' }}"
         echo "archs=$ARCHS" >> $GITHUB_OUTPUT
         echo "platforms=$(echo $ARCHS | sed 's/,/,linux\//g' | sed 's/^/linux\//')" >> $GITHUB_OUTPUT
-        echo "Building for architectures: $ARCHS"
-        echo "Docker platforms: $(echo $ARCHS | sed 's/,/,linux\//g' | sed 's/^/linux\//')"
 
     - name: Log in to GitHub Container Registry
       uses: docker/login-action@v2
@@ -51,11 +47,28 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Extract metadata for Docker
-      id: meta
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Extract metadata for GHCR
+      id: meta-ghcr
       uses: docker/metadata-action@v4
       with:
         images: ghcr.io/${{ steps.lowercase.outputs.owner }}/otelcontribcol
+        tags: |
+          type=sha,format=long
+          type=ref,event=branch
+          type=ref,event=tag
+          latest
+
+    - name: Extract metadata for Docker Hub
+      id: meta-dockerhub
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ secrets.DOCKERHUB_USERNAME }}/otelcontribcol
         tags: |
           type=sha,format=long
           type=ref,event=branch
@@ -67,28 +80,34 @@ jobs:
 
     - name: Build OpenTelemetry Collector Contrib
       run: |
-        # Loop through each architecture and build
         for arch in $(echo "${{ steps.set-archs.outputs.archs }}" | tr ',' ' '); do
-          echo "Building for $arch..."
           GOOS=linux GOARCH=$arch COMPONENT=otelcontribcol make otelcontribcol
         done
 
     - name: Prepare Docker build context
       run: |
-        # Loop through each architecture and copy the binaries
         for arch in $(echo "${{ steps.set-archs.outputs.archs }}" | tr ',' ' '); do
-          echo "Copying binary for $arch..."
           cp ./bin/otelcontribcol_linux_$arch ./cmd/otelcontribcol/otelcontribcol_$arch
         done
 
-    - name: Build and push Docker image with Buildx
-      id: push
+    - name: Push to GHCR
       uses: docker/build-push-action@v4
       with:
         context: ./cmd/otelcontribcol
         push: true
         platforms: ${{ steps.set-archs.outputs.platforms }}
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: ${{ steps.meta-ghcr.outputs.tags }}
+        labels: ${{ steps.meta-ghcr.outputs.labels }}
         cache-from: type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.owner }}/otelcontribcol:buildcache
         cache-to: type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.owner }}/otelcontribcol:buildcache,mode=max
+
+    - name: Push to Docker Hub
+      uses: docker/build-push-action@v4
+      with:
+        context: ./cmd/otelcontribcol
+        push: true
+        platforms: ${{ steps.set-archs.outputs.platforms }}
+        tags: ${{ steps.meta-dockerhub.outputs.tags }}
+        labels: ${{ steps.meta-dockerhub.outputs.labels }}
+        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/otelcontribcol:buildcache
+        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/otelcontribcol:buildcache,mode=max
