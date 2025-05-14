@@ -59,7 +59,7 @@ jobs:
       with:
         images: |
           ghcr.io/${{ steps.lowercase.outputs.owner }}/otelcontribcol
-          ${{ secrets.DOCKERHUB_USERNAME }}/otelcontribcol
+          ${{ secrets.DOCKERHUB_ORGANIZATION }}/otelcontribcol
         tags: |
           type=sha,format=long
           # prefix pre-releases with `branch-{branch_name}`
@@ -102,5 +102,5 @@ jobs:
         platforms: ${{ steps.set-archs.outputs.platforms }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/otelcontribcol:buildcache
-        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/otelcontribcol:buildcache,mode=max
+        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_ORGANIZATION }}/otelcontribcol:buildcache
+        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_ORGANIZATION }}/otelcontribcol:buildcache,mode=max
