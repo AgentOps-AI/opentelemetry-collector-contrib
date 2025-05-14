@@ -57,9 +57,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v4
       with:
-        images: |
-          ghcr.io/${{ steps.lowercase.outputs.owner }}/otelcontribcol
-          ${{ secrets.DOCKERHUB_ORGANIZATION }}/otelcontribcol
+        images: ${{ secrets.DOCKERHUB_ORGANIZATION }}/otelcontribcol
         tags: |
           type=sha,format=long
           # prefix pre-releases with `branch-{branch_name}`
