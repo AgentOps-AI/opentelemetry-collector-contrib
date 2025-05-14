@@ -40,12 +40,12 @@ jobs:
         echo "archs=$ARCHS" >> $GITHUB_OUTPUT
         echo "platforms=$(echo $ARCHS | sed 's/,/,linux\//g' | sed 's/^/linux\//')" >> $GITHUB_OUTPUT
 
-    - name: Log in to GitHub Container Registry
-      uses: docker/login-action@v2
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+    # - name: Log in to GitHub Container Registry
+    #   uses: docker/login-action@v2
+    #   with:
+    #     registry: ghcr.io
+    #     username: ${{ github.actor }}
+    #     password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
@@ -84,15 +84,15 @@ jobs:
         done
 
     - name: Push to GHCR
-      uses: docker/build-push-action@v4
-      with:
-        context: ./cmd/otelcontribcol
-        push: true
-        platforms: ${{ steps.set-archs.outputs.platforms }}
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.owner }}/otelcontribcol:buildcache
-        cache-to: type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.owner }}/otelcontribcol:buildcache,mode=max
+      # uses: docker/build-push-action@v4
+      # with:
+      #   context: ./cmd/otelcontribcol
+      #   push: true
+      #   platforms: ${{ steps.set-archs.outputs.platforms }}
+      #   tags: ${{ steps.meta.outputs.tags }}
+      #   labels: ${{ steps.meta.outputs.labels }}
+      #   cache-from: type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.owner }}/otelcontribcol:buildcache
+      #   cache-to: type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.owner }}/otelcontribcol:buildcache,mode=max
 
     - name: Push to Docker Hub
       uses: docker/build-push-action@v4
