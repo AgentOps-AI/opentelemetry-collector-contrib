@@ -39,13 +39,58 @@
 
 ---
 
+# AgentOps OpenTelemetry Collector Contrib
+
+ This is a fork of the official [OpenTelemetry Collector Contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib) repository with the following enhancements:
+
+ - **JWT Authentication Extension**:
+   - Added a JWT-based authentication extension for securing OTLP receivers
+   - Allows secure authentication using JSON Web Tokens
+   - Supports extracting claims from tokens for attribute processing>
+
+ - **Automated Docker Image Building**:
+   - Added CI/CD workflows to build and publish Docker images
+   - Images available on both GitHub Container Registry and Docker Hub
+   - Multi-architecture support (amd64, arm64)
+
+This fork maintains compatibility with the upstream repository while adding features needed for improved security and deployment flexibility.
+
 # OpenTelemetry Collector Contrib
 
-This is a repository for OpenTelemetry Collector components that are not suitable for the  [core repository](https://github.com/open-telemetry/opentelemetry-collector) of the collector. 
+This is a repository for OpenTelemetry Collector components that are not suitable for the  [core repository](https://github.com/open-telemetry/opentelemetry-collector) of the collector.
 
 The official distributions, core and contrib, are available as part of the [opentelemetry-collector-releases](https://github.com/open-telemetry/opentelemetry-collector-releases) repository. Some of the components in this repository are part of the "core" distribution, such as the Jaeger and Prometheus components, but most of the components here are only available as part of the "contrib" distribution. Users of the OpenTelemetry Collector are also encouraged to build their own custom distributions with the [OpenTelemetry Collector Builder](https://github.com/open-telemetry/opentelemetry-collector/tree/main/cmd/builder), using the components they need from the core repository, the contrib repository, and possibly third-party or internal repositories.
 
 Each component has its own support levels, as defined in the following sections. For each signal that a component supports, there's a stability level, setting the right expectations. It is possible then that a component will be **Stable** for traces but **Alpha** for metrics and **Development** for logs.
+
+## Docker Images
+
+Pre-built Docker images for the AgentOps OpenTelemetry Collector Contrib are available from both GitHub Container Registry and Docker Hub:
+
+1. **GitHub Container Registry**
+   ```
+   ghcr.io/agentops-ai/otelcontribcol
+   ```
+
+   Note: this requires that you are logged in to the GitHub Container Registry. You can do this by running:
+   ```bash
+   echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
+   ```
+
+2. **Docker Hub**
+   ```
+   agentops-ai/otelcontribcol
+   ```
+
+   This image is publicly available and does not require authentication.
+
+These images include the full OpenTelemetry Collector Contrib distribution with all components. The following tags are available:
+
+- `latest`: Stable release from the main branch
+- `branch-[branch-name]`: Builds from specific branches for pre-release testing
+- `[tag]`: Specific version releases (e.g., `v0.82.0`)
+- `sha-[commit-sha]`: Builds from specific commits
+
 
 ## Stability levels
 
@@ -149,4 +194,4 @@ is a maintainer they are responsible for merging the PR as well.
 The facilitator is not required to perform a thorough review, but they are encouraged to
 enforce Collector best practices and consistency across the codebase and component
 behavior. The facilitators will typically rely on codeowner's detailed review of the code
-when making the final approval decision. 
+when making the final approval decision.
