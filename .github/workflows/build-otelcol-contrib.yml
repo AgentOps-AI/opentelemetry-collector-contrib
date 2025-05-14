@@ -83,16 +83,16 @@ jobs:
           cp ./bin/otelcontribcol_linux_$arch ./cmd/otelcontribcol/otelcontribcol_$arch
         done
 
-    - name: Push to GHCR
-      # uses: docker/build-push-action@v4
-      # with:
-      #   context: ./cmd/otelcontribcol
-      #   push: true
-      #   platforms: ${{ steps.set-archs.outputs.platforms }}
-      #   tags: ${{ steps.meta.outputs.tags }}
-      #   labels: ${{ steps.meta.outputs.labels }}
-      #   cache-from: type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.owner }}/otelcontribcol:buildcache
-      #   cache-to: type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.owner }}/otelcontribcol:buildcache,mode=max
+    # - name: Push to GHCR
+    #   uses: docker/build-push-action@v4
+    #   with:
+    #     context: ./cmd/otelcontribcol
+    #     push: true
+    #     platforms: ${{ steps.set-archs.outputs.platforms }}
+    #     tags: ${{ steps.meta.outputs.tags }}
+    #     labels: ${{ steps.meta.outputs.labels }}
+    #     cache-from: type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.owner }}/otelcontribcol:buildcache
+    #     cache-to: type=registry,ref=ghcr.io/${{ steps.lowercase.outputs.owner }}/otelcontribcol:buildcache,mode=max
 
     - name: Push to Docker Hub
       uses: docker/build-push-action@v4
